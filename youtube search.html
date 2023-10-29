@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Video Search</title>
+    <style>
+        body {
+            background-color: #333333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #header {
+            background-color: #cdc2c2;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+        }
+        #header h1 {
+            color: #ff0000;
+            font-size: 28px;
+            margin: 0;
+        }
+        #video-results {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .video-thumbnail {
+            display: inline-block;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>YouTube Video Search</h1>
+    </div>
+    <div id="video-results">
+        <form id="search-form">
+            <input type="text" id="search-input" placeholder="Search for videos">
+            <button type="submit" style="background-color:#ff0000">Search </button>
+        </form>
+        <div id="video-thumbnails"></div>
+        <div id="player"></div>
+    </div>
+
+    <script>
+        function searchYouTubeVideos(query) {
+            const apiKey = 'AIzaSyAQd_G8rSOvjJtMByanekFdApkjoHx9j8U';
+
+            fetch(`https://www.googleapis.com/youtube/v3/search?key=${apiKey}&q=${query}&part=snippet&maxResults=20&type=video`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        const videoThumbnails = document.getElementById('video-thumbnails');
+                        videoThumbnails.innerHTML = '';
+
+                        data.items.forEach(video => {
+                            const thumbnail = video.snippet.thumbnails.medium.url;
+                            const videoId = video.id.videoId;
+
+                            const thumbnailElement = document.createElement('img');
+                            thumbnailElement.setAttribute('src', thumbnail);
+                            thumbnailElement.setAttribute('class', 'video-thumbnail');
+                            thumbnailElement.addEventListener('click', function () {
+                                loadVideo(videoId);
+                            });
+
+                            videoThumbnails.appendChild(thumbnailElement);
+                        });
+                    }
+                });
+        }
+
+        function loadVideo(videoId) {
+            const playerDiv = document.getElementById('player');
+            playerDiv.innerHTML = `<iframe width="640" height="360" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        }
+
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const searchQuery = document.getElementById('search-input').value;
+            searchYouTubeVideos(searchQuery);
+        });
+    </script>
+</body>
+</html>
